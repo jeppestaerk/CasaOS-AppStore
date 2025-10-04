@@ -8,8 +8,6 @@ services:
         reservations:
           memory: 8M
     network_mode: bridge
-    ports:
-      - "7682:7682"
     environment:
       - TZ=${TZ:-Europe/Copenhagen}
     volumes:
