@@ -1,0 +1,103 @@
+name: lazydocker-webui
+services:
+  lazydocker-webui:
+    image: ghcr.io/jeppestaerk/lazydocker-webui:v1.0.0
+    container_name: lazydocker-webui
+    deploy:
+      resources:
+        reservations:
+          memory: 8M
+    network_mode: bridge
+    ports:
+      - "7682:7682"
+    environment:
+      - TZ=${TZ:-Europe/Copenhagen}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - lazydocker-config:/.config/jesseduffield/lazydocker
+    pid: host
+    privileged: true
+    restart: unless-stopped
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/ttydbridge/icon.png
+  
+  ttydbridge:
+    container_name: ttydbridge
+    deploy:
+      resources:
+        reservations:
+          memory: 8M
+    environment:
+      - EXEC_DIR=/opt
+      # - HTTP_PASSWORD=password
+      # - HTTP_USERNAME=admin
+      - PORT=2222
+      - START_COMMAND=login
+    image: cp0204/ttydbridge:v0.0.3
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/ttydbridge/icon.png
+    pid: host
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /opt
+        target: /opt
+        bind:
+          create_host_path: true
+    network_mode: bridge
+x-casaos:
+  architectures:
+    - amd64
+    - arm64
+  author: Jeppe Stærk
+  category: Developer
+  description:
+    en_us: |
+      # LazyDocker Web UI
+
+      A Docker containerized deployment of [lazydocker](https://github.com/jesseduffield/lazydocker) with web-based terminal access via [ttyd](https://github.com/tsl0922/ttyd).
+
+      ## Features
+
+      - 🌐 Browser-based access to lazydocker terminal UI
+      - 🐳 Multi-architecture support (amd64, arm64)
+      - 🔄 Automated dependency updates via Renovate
+      - 📦 Published to GitHub Container Registry
+      - 🔒 Includes SBOM and provenance attestations
+
+      ## ⚠️ Security Warning
+
+      This container requires access to the Docker socket (`/var/run/docker.sock`) and provides **unauthenticated access** to the Docker daemon through a web interface.
+
+      **Security considerations:**
+      - Anyone with access to the web interface (port 7682) can manage all Docker resources on the host
+      - This grants **root-equivalent access** to the host system
+      - **Do not expose this port to the internet** without proper authentication/VPN
+      - Only use on trusted networks or with additional security measures (e.g., reverse proxy with authentication)
+
+      **Recommended security measures:**
+      - Use a reverse proxy (nginx, Traefik, Caddy) with authentication
+      - Bind to localhost only: `-p 127.0.0.1:7682:7682`
+      - Use a VPN or SSH tunnel for remote access
+      - Consider Docker socket proxy
+  developer: Jeppe Stærk
+  hostname: ""
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/ttydbridge/icon.png
+  index: /
+  main: lazydocker-webui
+  port_map: "7682"
+  scheme: http
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/ttydbridge/screenshot-1.png
+  store_app_id: lazydocker-webui
+  tagline:
+    en_us: 🐳 Web-based Docker management UI powered by lazydocker and ttyd.
+  tips:
+    before_install:
+      en_us: >
+        ## ⚠️ Security Warning
+
+        This container requires access to the Docker socket (`/var/run/docker.sock`) and provides **unauthenticated access** to the Docker daemon through a web interface.
+  title:
+    en_us: LazyDocker Web UI
